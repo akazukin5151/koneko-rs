@@ -12,7 +12,9 @@ fn COORDS() -> String {
         "{red}{{{blue}x{red}}}{{{blue}y{red}}}{reset}",
         //    ^^            ^^^^            ^^
         //    '{'           '}{'            '}'
-        red = RED, blue = BLUE, reset = RESET
+        red = RED,
+        blue = BLUE,
+        reset = RESET
     )
 }
 
@@ -25,7 +27,19 @@ fn letter_with_coords(letter: char) -> String {
 }
 
 fn two_letter_with_coords(letter: char) -> String {
-    format!("{}[{}{}{}{}|{}{}{}{}]{}", RED, MAGENTA, letter.to_lowercase(), RESET, COORDS(), MAGENTA, letter.to_uppercase(), BLUE_N(), RED, RESET)
+    format!(
+        "{}[{}{}{}{}|{}{}{}{}]{}",
+        RED,
+        MAGENTA,
+        letter.to_lowercase(),
+        RESET,
+        COORDS(),
+        MAGENTA,
+        letter.to_uppercase(),
+        BLUE_N(),
+        RED,
+        RESET
+    )
 }
 
 pub fn n() -> String {
@@ -81,15 +95,27 @@ pub fn d() -> String {
 }
 
 pub fn base1() -> [String; 8] {
-    [COORDS(), " view image at (x, y); ".to_string(),
-    i(), " view nth image; ".to_string(),
-    d(), " download image;\n".to_string(),
-    o(), " open image in browser; ".to_string()]
+    [
+        COORDS(),
+        " view image at (x, y); ".to_string(),
+        i(),
+        " view nth image; ".to_string(),
+        d(),
+        " download image;\n".to_string(),
+        o(),
+        " open image in browser; ".to_string(),
+    ]
 }
 
 pub fn base2() -> [String; 8] {
-    [n(), "ext page; ".to_string(),
-    p(), "revious page;\n".to_string(),
-    r(), "eload and re-download all; ".to_string(),
-    q(), "uit (with confirmation); ".to_string()]
+    [
+        n(),
+        "ext page; ".to_string(),
+        p(),
+        "revious page;\n".to_string(),
+        r(),
+        "eload and re-download all; ".to_string(),
+        q(),
+        "uit (with confirmation); ".to_string(),
+    ]
 }

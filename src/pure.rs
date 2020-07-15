@@ -4,7 +4,6 @@ use std::convert::TryInto;
 use regex::Regex;
 use serde_json::*;
 
-
 pub fn split_backslash_last(s: &str) -> &str {
     s.split('/').last().unwrap()
 }
@@ -29,7 +28,9 @@ pub fn url_given_size(post_json: &Value, size: &str) -> String {
 }
 
 pub fn post_title(page_illusts: &Value, post_number: usize) -> String {
-    page_illusts[post_number]["title"].to_string().replace("\"", "")
+    page_illusts[post_number]["title"]
+        .to_string()
+        .replace("\"", "")
 }
 
 pub fn medium_urls(page_illusts: &Value) -> Vec<String> {
@@ -38,11 +39,11 @@ pub fn medium_urls(page_illusts: &Value) -> Vec<String> {
     loop {
         let post_json = &page_illusts[i];
         if post_json.is_null() {
-            break
+            break;
         };
         result.push(url_given_size(post_json, "square_medium"));
         i += 1;
-    };
+    }
     result
 }
 
@@ -52,16 +53,20 @@ pub fn post_titles_in_page(page_illusts: &Value) -> Vec<String> {
     loop {
         let post_json = &page_illusts[i];
         if post_json.is_null() {
-            break
+            break;
         };
         result.push(post_title(page_illusts, i));
         i += 1;
-    };
+    }
     result
 }
 
-pub fn page_urls_in_post(post_json: &Value, size: &str) -> Vec<String>{
-    let number_of_pages: usize = post_json["page_count"].as_i64().unwrap().try_into().unwrap();
+pub fn page_urls_in_post(post_json: &Value, size: &str) -> Vec<String> {
+    let number_of_pages: usize = post_json["page_count"]
+        .as_i64()
+        .unwrap()
+        .try_into()
+        .unwrap();
     if number_of_pages > 1 {
         let list_of_pages = &post_json["meta_pages"];
         let mut result: Vec<String> = vec![];
@@ -98,19 +103,36 @@ pub fn process_user_url(url_or_id: &str) -> &str {
 
 pub fn process_artwork_url(url_or_id: &str) -> &str {
     if url_or_id.contains("artworks") {
-        split_backslash_last(url_or_id).split('\\').collect::<Vec<&str>>()[0]
+        split_backslash_last(url_or_id)
+            .split('\\')
+            .collect::<Vec<&str>>()[0]
     } else if url_or_id.contains("illust_id") {
         let re = Regex::new(r"&illust_id.*").unwrap();
-        re.captures(url_or_id).unwrap().get(0).unwrap().as_str().split('=').last().unwrap()
+        re.captures(url_or_id)
+            .unwrap()
+            .get(0)
+            .unwrap()
+            .as_str()
+            .split('=')
+            .last()
+            .unwrap()
     } else {
         url_or_id
     }
 }
 
-pub fn newnames_with_ext(urls: Vec<String>, oldname_with_ext: Vec<String>, newnames: Vec<String>) -> Vec<String> {
+pub fn newnames_with_ext(
+    urls: Vec<String>,
+    oldname_with_ext: Vec<String>,
+    newnames: Vec<String>,
+) -> Vec<String> {
     let mut result: Vec<String> = vec![];
     for i in 0..urls.len() {
-        result.push(prefix_filename(&oldname_with_ext[i], &newnames[i], i.try_into().unwrap()));
+        result.push(prefix_filename(
+            &oldname_with_ext[i],
+            &newnames[i],
+            i.try_into().unwrap(),
+        ));
     }
     result
 }
@@ -139,26 +161,28 @@ pub fn nrows(term_height: i32, image_height: i32, padding: i32) -> i32 {
 
 pub fn xcoords(term_width: i32, image_width: i32, padding: i32, offset: i32) -> Vec<i32> {
     let number_of_columns = ncols(term_width, image_width, padding);
-    (0..number_of_columns).map(|col| {
-        ((col as f32).rem_euclid(number_of_columns as f32)
-            * image_width as f32
-            + padding as f32
-            + offset as f32
-        ) as i32
-    }).collect()
+    (0..number_of_columns)
+        .map(|col| {
+            ((col as f32).rem_euclid(number_of_columns as f32) * image_width as f32
+                + padding as f32
+                + offset as f32) as i32
+        })
+        .collect()
 }
 
 pub fn ycoords(term_height: i32, image_height: i32, padding: i32) -> Vec<i32> {
     let number_of_rows = nrows(term_height, image_height, padding);
-    (0..number_of_rows).map(|row| row * (image_height + padding)).collect()
+    (0..number_of_rows)
+        .map(|row| row * (image_height + padding))
+        .collect()
 }
 
 pub fn generate_orders(total_pics: i32, artist_count: i32) -> Vec<i32> {
     let range: Vec<i32> = (0..artist_count).collect();
     let mut i = 0;
-    let mut order: Vec<i32> = (0..total_pics).map(|x| {
-        x + artist_count - 1 - ((x as f32 / 4f32).floor() as i32)
-    }).collect();
+    let mut order: Vec<i32> = (0..total_pics)
+        .map(|x| x + artist_count - 1 - ((x as f32 / 4f32).floor() as i32))
+        .collect();
 
     for (idx, num) in order.iter_mut().enumerate() {
         if idx.rem_euclid(4) == 0 {
@@ -174,9 +198,10 @@ pub fn line_width(spacings: Vec<i32>, ncols: i32) -> i32 {
 }
 
 pub fn all_isdigit(keyseqs: Vec<&str>) -> bool {
-    keyseqs.iter().all(|&s| s.chars().next().unwrap().is_digit(10))
+    keyseqs
+        .iter()
+        .all(|&s| s.chars().next().unwrap().is_digit(10))
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -186,13 +211,22 @@ mod tests {
 
     #[test]
     fn test_split_backslash_last() {
-        assert_eq!(split_backslash_last(&"https://www.pixiv.net/en/users/2232374"), "2232374");
-        assert_eq!(split_backslash_last(&"https://www.pixiv.net/en/artworks/78823485"), "78823485");
+        assert_eq!(
+            split_backslash_last(&"https://www.pixiv.net/en/users/2232374"),
+            "2232374"
+        );
+        assert_eq!(
+            split_backslash_last(&"https://www.pixiv.net/en/artworks/78823485"),
+            "78823485"
+        );
     }
 
     #[test]
     fn test_generate_filepath() {
-        assert_eq!(generate_filepath(&"78823485_p0.jpg"), dirs::home_dir().unwrap().join("Downloads/78823485_p0.jpg"));
+        assert_eq!(
+            generate_filepath(&"78823485_p0.jpg"),
+            dirs::home_dir().unwrap().join("Downloads/78823485_p0.jpg")
+        );
     }
 
     #[test]
@@ -204,7 +238,10 @@ mod tests {
     #[test]
     fn test_prefix_artist_name() {
         assert_eq!(prefix_artist_name("name1", 2), "02                   name1");
-        assert_eq!(prefix_artist_name("name1", 10), "10                   name1");
+        assert_eq!(
+            prefix_artist_name("name1", 10),
+            "10                   name1"
+        );
     }
 
     #[test]
@@ -224,8 +261,14 @@ mod tests {
         assert_eq!(medium_urls(current_illust)[0], "https://i.pximg.net/c/540x540_10_webp/img-master/img/2020/05/14/06/45/24/81547984_p0_square1200.jpg".to_string());
 
         assert_eq!(post_titles_in_page(current_illust).len(), 30);
-        assert_eq!(post_titles_in_page(current_illust)[0], "みこっちゃん".to_string());
-        assert_eq!(post_titles_in_page(current_illust)[1], "おりじなる".to_string());
+        assert_eq!(
+            post_titles_in_page(current_illust)[0],
+            "みこっちゃん".to_string()
+        );
+        assert_eq!(
+            post_titles_in_page(current_illust)[1],
+            "おりじなる".to_string()
+        );
 
         assert_eq!(page_urls_in_post(&current_illust[22], "medium"), vec!["https://i.pximg.net/c/540x540_70/img-master/img/2019/09/09/04/32/38/76695217_p0_master1200.jpg", "https://i.pximg.net/c/540x540_70/img-master/img/2019/09/09/04/32/38/76695217_p1_master1200.jpg", "https://i.pximg.net/c/540x540_70/img-master/img/2019/09/09/04/32/38/76695217_p2_master1200.jpg", "https://i.pximg.net/c/540x540_70/img-master/img/2019/09/09/04/32/38/76695217_p3_master1200.jpg", "https://i.pximg.net/c/540x540_70/img-master/img/2019/09/09/04/32/38/76695217_p4_master1200.jpg", "https://i.pximg.net/c/540x540_70/img-master/img/2019/09/09/04/32/38/76695217_p5_master1200.jpg", "https://i.pximg.net/c/540x540_70/img-master/img/2019/09/09/04/32/38/76695217_p6_master1200.jpg", "https://i.pximg.net/c/540x540_70/img-master/img/2019/09/09/04/32/38/76695217_p7_master1200.jpg"]);
         assert_eq!(page_urls_in_post(&current_illust[22], "medium").len(), 8);
@@ -241,14 +284,25 @@ mod tests {
 
     #[test]
     fn test_process_user_url() {
-        assert_eq!(process_user_url("https://www.pixiv.net/en/users/2232374"), "2232374");
+        assert_eq!(
+            process_user_url("https://www.pixiv.net/en/users/2232374"),
+            "2232374"
+        );
         assert_eq!(process_user_url("2232374"), "2232374");
     }
 
     #[test]
     fn test_process_artwork_url() {
-        assert_eq!(process_artwork_url("https://www.pixiv.net/en/artworks/76695217"), "76695217");
-        assert_eq!(process_artwork_url("http://www.pixiv.net/member_illust.php?mode=medium&illust_id=76695217"), "76695217");
+        assert_eq!(
+            process_artwork_url("https://www.pixiv.net/en/artworks/76695217"),
+            "76695217"
+        );
+        assert_eq!(
+            process_artwork_url(
+                "http://www.pixiv.net/member_illust.php?mode=medium&illust_id=76695217"
+            ),
+            "76695217"
+        );
     }
 
     #[test]
@@ -265,12 +319,10 @@ mod tests {
                     "image2.png".to_string(),
                     "image3.png".to_string()
                 ],
-                vec![
-                    "pic1".to_string(),
-                    "pic2".to_string(),
-                    "pic3".to_string()
-                ]
-            ), vec!["000_pic1.png", "001_pic2.png", "002_pic3.png"]);
+                vec!["pic1".to_string(), "pic2".to_string(), "pic3".to_string()]
+            ),
+            vec!["000_pic1.png", "001_pic2.png", "002_pic3.png"]
+        );
     }
 
     #[test]
@@ -285,7 +337,17 @@ mod tests {
 
     #[test]
     fn test_generate_orders() {
-        assert_eq!(generate_orders(120, 30), vec![0, 30, 31, 32, 1, 33, 34, 35, 2, 36, 37, 38, 3, 39, 40, 41, 4, 42, 43, 44, 5, 45, 46, 47, 6, 48, 49, 50, 7, 51, 52, 53, 8, 54, 55, 56, 9, 57, 58, 59, 10, 60, 61, 62, 11, 63, 64, 65, 12, 66, 67, 68, 13, 69, 70, 71, 14, 72, 73, 74, 15, 75, 76, 77, 16, 78, 79, 80, 17, 81, 82, 83, 18, 84, 85, 86, 19, 87, 88, 89, 20, 90, 91, 92, 21, 93, 94, 95, 22, 96, 97, 98, 23, 99, 100, 101, 24, 102, 103, 104, 25, 105, 106, 107, 26, 108, 109, 110, 27, 111, 112, 113, 28, 114, 115, 116, 29, 117, 118, 119]);
+        assert_eq!(
+            generate_orders(120, 30),
+            vec![
+                0, 30, 31, 32, 1, 33, 34, 35, 2, 36, 37, 38, 3, 39, 40, 41, 4, 42, 43, 44, 5, 45,
+                46, 47, 6, 48, 49, 50, 7, 51, 52, 53, 8, 54, 55, 56, 9, 57, 58, 59, 10, 60, 61, 62,
+                11, 63, 64, 65, 12, 66, 67, 68, 13, 69, 70, 71, 14, 72, 73, 74, 15, 75, 76, 77, 16,
+                78, 79, 80, 17, 81, 82, 83, 18, 84, 85, 86, 19, 87, 88, 89, 20, 90, 91, 92, 21, 93,
+                94, 95, 22, 96, 97, 98, 23, 99, 100, 101, 24, 102, 103, 104, 25, 105, 106, 107, 26,
+                108, 109, 110, 27, 111, 112, 113, 28, 114, 115, 116, 29, 117, 118, 119
+            ]
+        );
     }
 
     #[test]
@@ -295,4 +357,3 @@ mod tests {
         assert_eq!(all_isdigit(vec!["1", "f"]), false);
     }
 }
-

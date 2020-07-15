@@ -7,7 +7,6 @@ use serde_json::*;
 use crate::pure;
 use crate::KONEKODIR;
 
-
 pub struct Gallery {
     pub page_num: i32,
     pub main_path: PathBuf,
@@ -55,7 +54,10 @@ trait Data {
     fn all_names(&self) -> Vec<String>;
 
     fn urls_as_names(&self) -> Vec<String> {
-        self.all_urls().iter().map(|x| pure::split_backslash_last(&x[..]).to_string()).collect()
+        self.all_urls()
+            .iter()
+            .map(|x| pure::split_backslash_last(&x[..]).to_string())
+            .collect()
     }
 
     fn newnames_with_ext(&self) -> Vec<String> {
@@ -78,14 +80,11 @@ impl Data for Gallery {
 
     fn next_url(&self) -> Option<String> {
         Some(
-            self.all_pages_cache
-                .get(&self.page_num)?
-                ["next_url"]
+            self.all_pages_cache.get(&self.page_num)?["next_url"]
                 .to_string()
-                .replace("\"", "")
+                .replace("\"", ""),
         )
     }
-
 
     fn all_urls(&self) -> Vec<String> {
         pure::medium_urls(self.current_illusts().unwrap())
@@ -98,11 +97,7 @@ impl Data for Gallery {
 
 impl Gallery {
     fn current_illusts(&self) -> Option<&Value> {
-        Some(
-            &self.all_pages_cache
-                .get(&self.page_num)?
-                ["illusts"]
-        )
+        Some(&self.all_pages_cache.get(&self.page_num)?["illusts"])
     }
 
     fn post_json(&self, post_number: i32) -> &Value {
@@ -157,30 +152,36 @@ impl Data for UserData {
 
     fn all_names(&self) -> Vec<String> {
         let mut preview_names: Vec<String> = vec![];
-        self.image_urls.iter().for_each(|x| preview_names.push(
+        self.image_urls.iter().for_each(|x| {
+            preview_names.push(
                 pure::split_backslash_last(&x)
                     .to_string()
                     .split('.')
                     .next()
                     .unwrap()
-                    .to_string())
-        );
+                    .to_string(),
+            )
+        });
 
         let mut result: Vec<String> = vec![];
         self.names().iter().for_each(|x| result.push(x.to_string()));
-        preview_names.iter().for_each(|x| result.push(x.to_string()));
+        preview_names
+            .iter()
+            .for_each(|x| result.push(x.to_string()));
         result
     }
 }
 
 trait Mappable {
     fn map_string<F>(&self, func: F) -> Vec<String>
-        where F: Fn(&Value) -> &Value;
+    where
+        F: Fn(&Value) -> &Value;
 }
 
 impl Mappable for Value {
     fn map_string<F>(&self, func: F) -> Vec<String>
-    where F: Fn(&Value) -> &Value,
+    where
+        F: Fn(&Value) -> &Value,
     {
         let mut result: Vec<String> = vec![];
         let mut i = 0;
@@ -229,7 +230,7 @@ impl User {
                 j += 1;
             }
             i += 1;
-        };
+        }
 
         UserData {
             page_num: self.page_num,
@@ -240,7 +241,7 @@ impl User {
             names_cache,
             profile_pic_urls,
             image_urls,
-            splitpoint
+            splitpoint,
         }
     }
 }
@@ -251,12 +252,13 @@ impl UserData {
     }
 }
 
-
 pub fn new_imagedata<'a>(raw: &'a Value, image_id: &'a str) -> Image<'a> {
     let artist_user_id = raw["user"]["id"].to_string();
     let page_urls = pure::page_urls_in_post(raw, "large");
     let number_of_pages: i32 = page_urls.iter().len().try_into().unwrap();
-    let mut download_path = Path::new(KONEKODIR).join(&artist_user_id).join("individual");
+    let mut download_path = Path::new(KONEKODIR)
+        .join(&artist_user_id)
+        .join("individual");
     if number_of_pages != 1 {
         download_path = download_path.join(image_id);
     }
@@ -266,7 +268,7 @@ pub fn new_imagedata<'a>(raw: &'a Value, image_id: &'a str) -> Image<'a> {
         page_num: 0,
         page_urls,
         number_of_pages,
-        download_path
+        download_path,
     }
 }
 
@@ -292,7 +294,6 @@ impl Image<'_> {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -300,7 +301,6 @@ mod tests {
 
     use rstest::*;
     use maplit::hashmap;
-
 
     #[fixture]
     fn gallery_json() -> Value {
@@ -329,7 +329,7 @@ mod tests {
             page_num: 1,
             main_path: Path::new(KONEKODIR).join("2232374"),
             offset: 0,
-            all_pages_cache: HashMap::new()
+            all_pages_cache: HashMap::new(),
         }
     }
 
@@ -355,7 +355,6 @@ mod tests {
         udata.update(&user_json)
     }
 
-
     #[rstest]
     fn test_gallery_init() {
         let gdata = gallery();
@@ -374,14 +373,20 @@ mod tests {
     #[rstest]
     fn test_gallery_download_path(gallery_json: Value) {
         let gdata = gallery_updated(gallery_json);
-        assert_eq!(gdata.download_path(), Path::new(KONEKODIR).join("2232374/1"))
+        assert_eq!(
+            gdata.download_path(),
+            Path::new(KONEKODIR).join("2232374/1")
+        )
     }
 
     #[rstest]
     fn test_gallery_current_illusts(gallery_json: Value) {
         let gdata = gallery_updated(gallery_json);
         assert_eq!(gdata.current_illusts().unwrap().is_array(), true);
-        assert_eq!(gdata.current_illusts().unwrap().as_array().unwrap().len(), 30)
+        assert_eq!(
+            gdata.current_illusts().unwrap().as_array().unwrap().len(),
+            30
+        )
     }
 
     #[rstest]
@@ -426,29 +431,133 @@ mod tests {
     #[rstest]
     fn test_gallery_all_names(gallery_json: Value) {
         let gdata = gallery_updated(gallery_json);
-        assert_eq!(gdata.all_names(), ["みこっちゃん", "おりじなる", "0510", "5.3", "おりじなる", "ミコ誕オメ画！", "5.2", "5.1", "310", "Midnight Sun", "222", "バレンタイン", "祝！！！", "あけましておめでとうございます", "ミコサンタ", "C97告知", "ミコバニー", "たちかわ楽市2019仕様4人組", "ハロミコ", "夏服", "御坂美琴写真集１０用", "常盤台中学指定体操服改", "ツイッターまとめ", "スクミズミコクロ", "ミズミコ", "ミコニャン", "とある画帖", "御坂美琴写真集９", "ジャンプ！", "シャワミコ"]);
+        assert_eq!(
+            gdata.all_names(),
+            [
+                "みこっちゃん",
+                "おりじなる",
+                "0510",
+                "5.3",
+                "おりじなる",
+                "ミコ誕オメ画！",
+                "5.2",
+                "5.1",
+                "310",
+                "Midnight Sun",
+                "222",
+                "バレンタイン",
+                "祝！！！",
+                "あけましておめでとうございます",
+                "ミコサンタ",
+                "C97告知",
+                "ミコバニー",
+                "たちかわ楽市2019仕様4人組",
+                "ハロミコ",
+                "夏服",
+                "御坂美琴写真集１０用",
+                "常盤台中学指定体操服改",
+                "ツイッターまとめ",
+                "スクミズミコクロ",
+                "ミズミコ",
+                "ミコニャン",
+                "とある画帖",
+                "御坂美琴写真集９",
+                "ジャンプ！",
+                "シャワミコ"
+            ]
+        );
     }
 
     #[rstest]
     fn test_urls_as_names_gdata(gallery_json: Value) {
         let gdata = gallery_updated(gallery_json);
 
-        assert_eq!(gdata.urls_as_names(), vec!["81547984_p0_square1200.jpg","81501385_p0_square1200.jpg","81468125_p0_square1200.jpg","81416496_p0_square1200.jpg","81368866_p0_square1200.jpg","81276257_p0_square1200.jpg","80923496_p0_square1200.jpg","80701898_p0_square1200.jpg","80017594_p0_square1200.jpg","79799236_p0_square1200.jpg","79658392_p0_square1200.jpg","79549991_p0_square1200.jpg","78823485_p0_square1200.jpg","78628383_p0_square1200.jpg","78403815_p0_square1200.jpg","78378594_p0_square1200.jpg","78201587_p0_square1200.jpg","77804404_p0_square1200.jpg","77565309_p0_square1200.jpg","77460464_p0_square1200.jpg","77347697_p0_square1200.jpg","77068750_p0_square1200.jpg","76695217_p0_square1200.jpg","76561671_p0_square1200.jpg","76138362_p0_square1200.jpg","75933779_p0_square1200.jpg","75810852_p0_square1200.jpg","75698678_p0_square1200.jpg","75579060_p0_square1200.jpg","75457783_p0_square1200.jpg"])
+        assert_eq!(
+            gdata.urls_as_names(),
+            vec![
+                "81547984_p0_square1200.jpg",
+                "81501385_p0_square1200.jpg",
+                "81468125_p0_square1200.jpg",
+                "81416496_p0_square1200.jpg",
+                "81368866_p0_square1200.jpg",
+                "81276257_p0_square1200.jpg",
+                "80923496_p0_square1200.jpg",
+                "80701898_p0_square1200.jpg",
+                "80017594_p0_square1200.jpg",
+                "79799236_p0_square1200.jpg",
+                "79658392_p0_square1200.jpg",
+                "79549991_p0_square1200.jpg",
+                "78823485_p0_square1200.jpg",
+                "78628383_p0_square1200.jpg",
+                "78403815_p0_square1200.jpg",
+                "78378594_p0_square1200.jpg",
+                "78201587_p0_square1200.jpg",
+                "77804404_p0_square1200.jpg",
+                "77565309_p0_square1200.jpg",
+                "77460464_p0_square1200.jpg",
+                "77347697_p0_square1200.jpg",
+                "77068750_p0_square1200.jpg",
+                "76695217_p0_square1200.jpg",
+                "76561671_p0_square1200.jpg",
+                "76138362_p0_square1200.jpg",
+                "75933779_p0_square1200.jpg",
+                "75810852_p0_square1200.jpg",
+                "75698678_p0_square1200.jpg",
+                "75579060_p0_square1200.jpg",
+                "75457783_p0_square1200.jpg"
+            ]
+        )
     }
 
     #[rstest]
     fn test_newnames_with_ext_gdata(gallery_json: Value) {
         let gdata = gallery_updated(gallery_json);
 
-        assert_eq!(gdata.newnames_with_ext(), ["000_みこっちゃん.jpg","001_おりじなる.jpg","002_0510.jpg","003_5.3.jpg","004_おりじなる.jpg","005_ミコ誕オメ画！.jpg","006_5.2.jpg","007_5.1.jpg","008_310.jpg","009_Midnight Sun.jpg","010_222.jpg","011_バレンタイン.jpg","012_祝！！！.jpg","013_あけましておめでとうございます.jpg","014_ミコサンタ.jpg","015_C97告知.jpg","016_ミコバニー.jpg","017_たちかわ楽市2019仕様4人組.jpg","018_ハロミコ.jpg","019_夏服.jpg","020_御坂美琴写真集１０用.jpg","021_常盤台中学指定体操服改.jpg","022_ツイッターまとめ.jpg","023_スクミズミコクロ.jpg","024_ミズミコ.jpg","025_ミコニャン.jpg","026_とある画帖.jpg","027_御坂美琴写真集９.jpg","028_ジャンプ！.jpg","029_シャワミコ.jpg"])
+        assert_eq!(
+            gdata.newnames_with_ext(),
+            [
+                "000_みこっちゃん.jpg",
+                "001_おりじなる.jpg",
+                "002_0510.jpg",
+                "003_5.3.jpg",
+                "004_おりじなる.jpg",
+                "005_ミコ誕オメ画！.jpg",
+                "006_5.2.jpg",
+                "007_5.1.jpg",
+                "008_310.jpg",
+                "009_Midnight Sun.jpg",
+                "010_222.jpg",
+                "011_バレンタイン.jpg",
+                "012_祝！！！.jpg",
+                "013_あけましておめでとうございます.jpg",
+                "014_ミコサンタ.jpg",
+                "015_C97告知.jpg",
+                "016_ミコバニー.jpg",
+                "017_たちかわ楽市2019仕様4人組.jpg",
+                "018_ハロミコ.jpg",
+                "019_夏服.jpg",
+                "020_御坂美琴写真集１０用.jpg",
+                "021_常盤台中学指定体操服改.jpg",
+                "022_ツイッターまとめ.jpg",
+                "023_スクミズミコクロ.jpg",
+                "024_ミズミコ.jpg",
+                "025_ミコニャン.jpg",
+                "026_とある画帖.jpg",
+                "027_御坂美琴写真集９.jpg",
+                "028_ジャンプ！.jpg",
+                "029_シャワミコ.jpg"
+            ]
+        )
     }
-
 
     #[rstest]
     fn test_user_init() {
         let udata = user();
         assert_eq!(udata.page_num, 1);
-        assert_eq!(udata.main_path, Path::new(KONEKODIR).join("following/2232374"));
+        assert_eq!(
+            udata.main_path,
+            Path::new(KONEKODIR).join("following/2232374")
+        );
         assert_eq!(udata.offset, 0);
     }
 
@@ -459,9 +568,15 @@ mod tests {
 
         assert_eq!(udata.next_url, "https://app-api.pixiv.net/v1/user/following?user_id=2232374&restrict=private&offset=30");
 
-        assert_eq!(udata.ids_cache, hashmap! {1 => vec!["219621".to_string(), "1510169".to_string(), "12612404".to_string(), "8660134".to_string(), "15063".to_string(), "28245700".to_string(), "33137265".to_string(), "2702224".to_string(), "24218478".to_string(), "625051".to_string(), "95391".to_string(), "9427".to_string(), "1193008".to_string(), "1554775".to_string(), "11103".to_string(), "7309825".to_string(), "5301174".to_string(), "4316556".to_string(), "10573236".to_string(), "29362997".to_string(), "809099".to_string(), "82688".to_string(), "15608555".to_string(), "30803054".to_string(), "18836733".to_string(), "644670".to_string(), "2397243".to_string(), "14211481".to_string(), "8092144".to_string(), "8175661".to_string()]});
+        assert_eq!(
+            udata.ids_cache,
+            hashmap! {1 => vec!["219621".to_string(), "1510169".to_string(), "12612404".to_string(), "8660134".to_string(), "15063".to_string(), "28245700".to_string(), "33137265".to_string(), "2702224".to_string(), "24218478".to_string(), "625051".to_string(), "95391".to_string(), "9427".to_string(), "1193008".to_string(), "1554775".to_string(), "11103".to_string(), "7309825".to_string(), "5301174".to_string(), "4316556".to_string(), "10573236".to_string(), "29362997".to_string(), "809099".to_string(), "82688".to_string(), "15608555".to_string(), "30803054".to_string(), "18836733".to_string(), "644670".to_string(), "2397243".to_string(), "14211481".to_string(), "8092144".to_string(), "8175661".to_string()]}
+        );
 
-        assert_eq!(udata.names_cache, hashmap! {1 => vec!["畳と桧".to_string(), "ざるつ".to_string(), "春夫".to_string(), "JAM".to_string(), "肋兵器".to_string(), "おてん!!!!!!!!".to_string(), "saber".to_string(), "sola7764".to_string(), "￦ANKE".to_string(), "ToY".to_string(), "sigma99".to_string(), "アマガイタロー".to_string(), "望月けい".to_string(), "米山舞".to_string(), "にえあ@冬コミ新刊委託中です".to_string(), "白萝炖黑兔".to_string(), "Kelinch1".to_string(), "三崎二式.N3".to_string(), "ﾕｳｷ".to_string(), "sunhyunそんひょん선현".to_string(), "うまくち醤油".to_string(), "Prime".to_string(), "哦雅思密乃".to_string(), "ホリセイ".to_string(), "pattsk138".to_string(), "DELF".to_string(), "キンタ".to_string(), "cookies".to_string(), "Aluppia".to_string(), "うにゃりすたー".to_string()]});
+        assert_eq!(
+            udata.names_cache,
+            hashmap! {1 => vec!["畳と桧".to_string(), "ざるつ".to_string(), "春夫".to_string(), "JAM".to_string(), "肋兵器".to_string(), "おてん!!!!!!!!".to_string(), "saber".to_string(), "sola7764".to_string(), "￦ANKE".to_string(), "ToY".to_string(), "sigma99".to_string(), "アマガイタロー".to_string(), "望月けい".to_string(), "米山舞".to_string(), "にえあ@冬コミ新刊委託中です".to_string(), "白萝炖黑兔".to_string(), "Kelinch1".to_string(), "三崎二式.N3".to_string(), "ﾕｳｷ".to_string(), "sunhyunそんひょん선현".to_string(), "うまくち醤油".to_string(), "Prime".to_string(), "哦雅思密乃".to_string(), "ホリセイ".to_string(), "pattsk138".to_string(), "DELF".to_string(), "キンタ".to_string(), "cookies".to_string(), "Aluppia".to_string(), "うにゃりすたー".to_string()]}
+        );
 
         assert_eq!(udata.profile_pic_urls.iter().len(), 30);
 
@@ -471,7 +586,10 @@ mod tests {
     #[rstest]
     fn test_user_download_path(user_json: Value) {
         let udata = user_updated(user_json);
-        assert_eq!(udata.download_path(), Path::new(KONEKODIR).join("following/2232374/1"));
+        assert_eq!(
+            udata.download_path(),
+            Path::new(KONEKODIR).join("following/2232374/1")
+        );
     }
 
     #[rstest]
@@ -495,9 +613,43 @@ mod tests {
     #[rstest]
     fn test_user_all_names(user_json: Value) {
         let udata = user_updated(user_json);
-        assert_eq!(udata.all_names()[..10], ["畳と桧".to_string(), "ざるつ".to_string(), "春夫".to_string(), "JAM".to_string(), "肋兵器".to_string(), "おてん!!!!!!!!".to_string(), "saber".to_string(), "sola7764".to_string(), "￦ANKE".to_string(), "ToY".to_string()]);
+        assert_eq!(
+            udata.all_names()[..10],
+            [
+                "畳と桧".to_string(),
+                "ざるつ".to_string(),
+                "春夫".to_string(),
+                "JAM".to_string(),
+                "肋兵器".to_string(),
+                "おてん!!!!!!!!".to_string(),
+                "saber".to_string(),
+                "sola7764".to_string(),
+                "￦ANKE".to_string(),
+                "ToY".to_string()
+            ]
+        );
 
-        assert_eq!(udata.all_names().iter().rev().take(10).rev().collect::<Vec<&String>>(), [&"76547709_p0_square1200".to_string(), &"79708221_p0_square1200".to_string(), &"76623178_p0_square1200".to_string(), &"74653820_p0_square1200".to_string(), &"81542404_p0_square1200".to_string(), &"80414334_p0_square1200".to_string(), &"79663557_p0_square1200".to_string(), &"79028150_p0_square1200".to_string(), &"79027961_p0_square1200".to_string(), &"79027291_p0_square1200".to_string()]);
+        assert_eq!(
+            udata
+                .all_names()
+                .iter()
+                .rev()
+                .take(10)
+                .rev()
+                .collect::<Vec<&String>>(),
+            [
+                &"76547709_p0_square1200".to_string(),
+                &"79708221_p0_square1200".to_string(),
+                &"76623178_p0_square1200".to_string(),
+                &"74653820_p0_square1200".to_string(),
+                &"81542404_p0_square1200".to_string(),
+                &"80414334_p0_square1200".to_string(),
+                &"79663557_p0_square1200".to_string(),
+                &"79028150_p0_square1200".to_string(),
+                &"79027961_p0_square1200".to_string(),
+                &"79027291_p0_square1200".to_string()
+            ]
+        );
     }
 
     #[rstest]
@@ -505,7 +657,6 @@ mod tests {
         let udata = user_updated(user_json);
         assert_eq!(udata.splitpoint, 30);
     }
-
 
     #[rstest]
     fn test_image_artist_user_id(image_json: Value) {
@@ -534,7 +685,10 @@ mod tests {
     #[rstest]
     fn test_image_download_path(image_json: Value) {
         let idata = new_imagedata(&image_json, "76695217");
-        assert_eq!(idata.download_path, Path::new(KONEKODIR).join("2232374/individual/76695217"));
+        assert_eq!(
+            idata.download_path,
+            Path::new(KONEKODIR).join("2232374/individual/76695217")
+        );
     }
 
     #[rstest]
