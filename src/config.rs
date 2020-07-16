@@ -12,19 +12,19 @@ fn read_raw() -> Option<String> {
     let mut result = String::new();
     f.read_to_string(&mut result).ok()?;
 
-    Some(result)
+    Some(result.to_lowercase())
 }
 
 fn get_section(section_name: &str) -> Option<String> {
     let file: String = read_raw()?;
-    let section_head = file.split(&format!("[{}]", section_name)).last()?;
+    let section_head = file.split(&format!("[{}]", section_name.to_lowercase())).last()?;
     let section = section_head.split('[').next()?.trim();
     Some(section.to_string())
 }
 
 fn get_setting(section_name: &str, setting_name: &str) -> Option<String> {
-    let section = get_section(section_name)?;
-    let startpos = section.find(setting_name)?;
+    let section = get_section(&section_name.to_lowercase())?;
+    let startpos = section.find(&setting_name.to_lowercase())?;
     let endpos = section.get(startpos..)?.find('\n')?;
     let kv_vec: &Vec<&str> = &section[startpos..endpos].split('=').collect();
 
@@ -108,4 +108,8 @@ pub fn gallery_print_spacing_config() -> Vec<i32> {
         .split(',')
         .map(|x| x.parse::<i32>().unwrap())
         .collect()
+}
+
+pub fn id_from_config() -> String {
+    get_setting("Credentials", "ID").unwrap()
 }
