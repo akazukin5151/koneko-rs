@@ -7,7 +7,6 @@ use crate::pure;
 use crate::KONEKODIR;
 use crate::data::{Data, UserData};
 
-
 fn read_dir_to_string(d: io::Result<DirEntry>) -> String {
     d.unwrap().file_name().to_str().unwrap().to_string()
 }
@@ -116,21 +115,15 @@ pub fn filter_dir(modes: Vec<i32>) -> Vec<String> {
 
     let mut res = dirs.map(|x| read_dir_to_string(x));
     if modes.iter().find(|&&x| x == 1).is_some() {
-        let predicate = |d: &str| {
-            pure::str_is_digit(d) || allowed_names.contains(d)
-        };
+        let predicate = |d: &str| pure::str_is_digit(d) || allowed_names.contains(d);
         res.filter(|x| predicate(x)).collect()
-
     } else if modes.iter().find(|&&x| x == 2).is_some() {
         let predicate = |d: &str| {
             find_mode2_dirs().iter().find(|&x| x == d).is_some() || allowed_names.contains(d)
         };
         res.filter(|x| predicate(x)).collect()
-
     } else {
-        let predicate = |d: &str| {
-            allowed_names.contains(d)
-        };
+        let predicate = |d: &str| allowed_names.contains(d);
         res.filter(|x| predicate(x)).collect()
     }
 }

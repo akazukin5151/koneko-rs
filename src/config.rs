@@ -67,22 +67,3 @@ pub fn nrows_config() -> i32 {
     let (height, padding) = width_padding("height", "x", (8, 2));
     pure::nrows(terminal::size().unwrap().1, height, padding)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
