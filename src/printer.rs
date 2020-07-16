@@ -87,6 +87,7 @@ pub fn print_doc(doc: &str) {
     println!("{}", doc);
 }
 
+#[allow(non_snake_case)]
 pub fn print_multiple_imgs(illusts_json: &Value) {
     let HASHTAG = format!("{}#", RED);
     let HAS = format!("{} has {}", RESET, BLUE);
