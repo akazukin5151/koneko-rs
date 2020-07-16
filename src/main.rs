@@ -1,6 +1,7 @@
 #[macro_use]
 mod utils;
 mod colors;
+mod config;
 mod data;
 mod files;
 mod pure;

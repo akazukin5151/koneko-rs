@@ -155,15 +155,15 @@ pub fn concat_seq_to_int(keyseqs: Vec<&str>, start: i32) -> i32 {
     format!("{}{}", first, second).parse::<i32>().unwrap()
 }
 
-pub fn ncols(term_width: i32, image_width: i32, padding: i32) -> i32 {
+pub fn ncols(term_width: u16, image_width: i32, padding: i32) -> i32 {
     (term_width as f32 / (image_width as f32 + padding as f32)).round() as i32
 }
 
-pub fn nrows(term_height: i32, image_height: i32, padding: i32) -> i32 {
+pub fn nrows(term_height: u16, image_height: i32, padding: i32) -> i32 {
     ((term_height as f32).div_euclid(image_height as f32 + padding as f32)) as i32
 }
 
-pub fn xcoords(term_width: i32, image_width: i32, padding: i32, offset: i32) -> Vec<i32> {
+pub fn xcoords(term_width: u16, image_width: i32, padding: i32, offset: i32) -> Vec<i32> {
     let number_of_columns = ncols(term_width, image_width, padding);
     (0..number_of_columns)
         .map(|col| {
@@ -174,7 +174,7 @@ pub fn xcoords(term_width: i32, image_width: i32, padding: i32, offset: i32) -> 
         .collect()
 }
 
-pub fn ycoords(term_height: i32, image_height: i32, padding: i32) -> Vec<i32> {
+pub fn ycoords(term_height: u16, image_height: i32, padding: i32) -> Vec<i32> {
     let number_of_rows = nrows(term_height, image_height, padding);
     (0..number_of_rows)
         .map(|row| row * (image_height + padding))
