@@ -1,6 +1,9 @@
-use std::fs::File;
+use std::io;
+use std::fs::{self, File};
+use std::path::Path;
 use std::str::FromStr;
 use std::io::prelude::*;
+use std::process::Command;
 
 use crate::pure;
 use crate::utils;
@@ -17,7 +20,9 @@ fn read_raw() -> Option<String> {
 
 fn get_section(section_name: &str) -> Option<String> {
     let file: String = read_raw()?;
-    let section_head = file.split(&format!("[{}]", section_name.to_lowercase())).last()?;
+    let section_head = file
+        .split(&format!("[{}]", section_name.to_lowercase()))
+        .last()?;
     let section = section_head.split('[').next()?.trim();
     Some(section.to_string())
 }
@@ -110,6 +115,85 @@ pub fn gallery_print_spacing_config() -> Vec<i32> {
         .collect()
 }
 
-pub fn id_from_config() -> String {
-    get_setting("Credentials", "ID").unwrap()
+pub struct Credentials {
+    pub username: String,
+    pub password: String,
+    pub your_id: String,
+}
+
+pub fn credentials_from_config() -> Credentials {
+    Credentials {
+        username: get_setting("Credentials", "username").unwrap(),
+        password: get_setting("Credentials", "password").unwrap(),
+        your_id: get_setting("Credentials", "ID").unwrap()
+    }
+}
+
+pub fn begin_config() -> Credentials {
+    Command::new("clear").spawn();
+    if Path::new(CONFIGPATH).exists() {
+        credentials_from_config()
+    } else {
+        init_config()
+    }
+}
+
+fn init_config() -> Credentials {
+    let (username, password) = ask_credentials();
+    let your_id = ask_your_id();
+    let creds = Credentials {
+        username,
+        password,
+        your_id,
+    };
+    let samecreds = write_config(creds);
+    append_default_config();
+    samecreds
+}
+
+fn ask_credentials() -> (String, String) {
+    println!("Please enter your username:");
+    let mut username = String::new();
+    io::stdin().read_line(&mut username).unwrap();
+
+    // TODO: hide password entry
+    println!("Please enter your password:");
+    let mut password = String::new();
+    io::stdin().read_line(&mut password).unwrap();
+
+    (username.to_string(), password.to_string())
+}
+
+fn ask_your_id() -> String {
+    println!("Do you want to save your pixiv ID? It will be more convenient");
+    println!("to view artists you are following");
+
+    let mut ans = String::new();
+    io::stdin().read_line(&mut ans).unwrap();
+    match ans.as_str() {
+        "y" | "" => {
+            println!("Please enter your pixiv ID:");
+            let mut your_id = String::new();
+            io::stdin().read_line(&mut your_id).unwrap();
+            your_id
+        }
+        _ => "".to_string(),
+    }
+}
+
+fn write_config(creds: Credentials) -> Credentials {
+    Command::new("clear").spawn();
+    fs::create_dir_all(Path::new(CONFIGPATH).parent().unwrap());
+    let mut buffer = File::create("config.ini").unwrap();
+    write!(buffer, "username={}\npassword={}",creds.username, creds.password);
+    if creds.your_id != "" {
+        write!(buffer, "\nID={}", creds.your_id).unwrap()
+    }
+    creds
+}
+
+fn append_default_config() {
+    let example_cfg = Path::new("~/.local/share/koneko/example_config.ini");
+    // FIXME
+    //Command::new("tail").args([example_cfg, "-n", "+9"]).stdout(CONFIGPATH);
 }
