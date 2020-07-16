@@ -1,3 +1,4 @@
+#![allow(dead_code)] // Temporary, remove later
 #[macro_use]
 mod utils;
 mod colors;

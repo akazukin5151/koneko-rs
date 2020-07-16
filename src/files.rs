@@ -113,7 +113,7 @@ pub fn filter_dir(modes: Vec<i32>) -> Vec<String> {
         allowed_names.insert("illustfollow");
     }
 
-    let mut res = dirs.map(|x| read_dir_to_string(x));
+    let res = dirs.map(|x| read_dir_to_string(x));
     if modes.iter().find(|&&x| x == 1).is_some() {
         let predicate = |d: &str| pure::str_is_digit(d) || allowed_names.contains(d);
         res.filter(|x| predicate(x)).collect()
