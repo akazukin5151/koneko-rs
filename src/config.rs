@@ -71,3 +71,41 @@ pub fn xcoords_config(offset: i32) -> Vec<i32> {
     let (width, padding) = width_padding("width", "x", (18, 2));
     pure::xcoords(utils::term_width(), width, padding, offset)
 }
+
+pub fn ycoords_config() -> Vec<i32> {
+    let (height, padding) = width_padding("height", "x", (8, 2));
+    pure::ycoords(utils::term_height(), height, padding)
+}
+
+pub fn gallery_page_spacing_config() -> i32 {
+    parse_setting("lscat", "page_spacing", 23)
+}
+
+pub fn users_page_spacing_config() -> i32 {
+    gallery_page_spacing_config() - 3
+}
+
+pub fn thumbnail_size_config() -> i32 {
+    parse_setting("lscat", "image_thumbnail_size", 310)
+}
+
+pub fn get_gen_users_settings() -> (i32, i32) {
+    (
+        parse_setting("lscat", "users_print_name_xcoord", 18),
+        parse_setting("lscat", "images_x_spacing", 2),
+    )
+}
+
+pub fn image_text_offset() -> i32 {
+    parse_setting("experimental", "image_mode_text_offset", 4)
+}
+
+pub fn gallery_print_spacing_config() -> Vec<i32> {
+    let setting =
+        get_setting("lscat", "gallery_print_spacing").unwrap_or("9,17,17,17,17".to_string());
+    // TODO: if there is any parsing error, return the default
+    setting
+        .split(',')
+        .map(|x| x.parse::<i32>().unwrap())
+        .collect()
+}
