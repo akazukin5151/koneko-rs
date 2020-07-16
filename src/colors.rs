@@ -3,10 +3,13 @@ const MAGENTA: &str = "\x1b[35m";
 const BLUE: &str = "\x1b[34m";
 const RESET: &str = "\x1b[39m";
 
+
+#[allow(non_snake_case)]
 pub fn BLUE_N() -> String {
     format!("{}[{}n{}]{}", RED, BLUE, RED, RESET)
 }
 
+#[allow(non_snake_case)]
 fn COORDS() -> String {
     format!(
         "{red}{{{blue}x{red}}}{{{blue}y{red}}}{reset}",

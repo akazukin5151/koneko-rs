@@ -1,7 +1,7 @@
 use std::io::{self, Read};
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
-use std::fs::{self, DirEntry, File, ReadDir};
+use std::fs::{self, DirEntry, File};
 
 use crate::pure;
 use crate::KONEKODIR;
