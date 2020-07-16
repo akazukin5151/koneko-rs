@@ -58,3 +58,37 @@ pub fn filter_history(path: PathBuf) -> Vec<String> {
         .filter(|f| f != "history")
         .collect()
 }
+
+fn dir_up_to_date(data: impl Data, dir: &[String]) -> bool {
+    if dir.len() < data.all_names().len() {
+        false
+    } else {
+        // This is so weird...
+        let mut res = true;
+        for (name, file) in data.all_names().iter().zip(dir) {
+            if file.contains(&name.replace('/', "")) {
+                res = false;
+            }
+        }
+        res
+    }
+}
+
+pub fn dir_not_empty(data: impl Data) -> bool {
+    let mut dir: Vec<String> = fs::read_dir(data.download_path())
+        .unwrap()
+        .map(|r| r.unwrap().file_name().to_str().unwrap().to_string())
+        .collect();
+
+    if data.download_path().exists() && dir.iter().len() != 0 {
+        //TODO: all_names: either data not updated, or request not sent
+        dir.sort();
+        if dir[0] == ".koneko" {
+            dir_up_to_date(data, &dir[1..])
+        } else {
+            dir_up_to_date(data, &dir[..])
+        }
+    } else {
+        false
+    }
+}
