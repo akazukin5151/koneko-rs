@@ -1,9 +1,6 @@
 use std::fs;
-use std::env;
 use std::path::Path;
 use std::process::Command;
-
-use scopeguard::defer;
 
 use crate::data;
 use crate::KONEKODIR;
@@ -11,6 +8,9 @@ use crate::KONEKODIR;
 #[macro_export]
 macro_rules! cd {
     ( $newdir:expr, $x:block ) => {{
+        use std::env;
+        use scopeguard::defer;
+
         let old = env::current_dir().unwrap();
         {
             defer! {

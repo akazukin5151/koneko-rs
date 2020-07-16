@@ -1,6 +1,8 @@
 use std::path::Path;
-use std::fs::{self, DirEntry};
+use std::io::Read;
+use std::fs::{self, DirEntry, File};
 
+use crate::data::{Data, UserData};
 use crate::KONEKODIR;
 
 fn isdigit(entry: DirEntry) -> (DirEntry, bool) {
@@ -32,4 +34,13 @@ pub fn find_mode2_dirs() -> Vec<String> {
         }
     }
     result
+}
+
+pub fn read_invis(udata: UserData) -> i32 {
+    let mut result = String::new();
+    cd!(udata.download_path(), {
+        let mut f = File::open(".koneko").unwrap();
+        f.read_to_string(&mut result).unwrap();
+    });
+    result.parse::<i32>().unwrap()
 }

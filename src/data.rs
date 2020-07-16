@@ -50,7 +50,7 @@ pub struct Image<'a> {
     pub download_path: PathBuf,
 }
 
-trait Data {
+pub trait Data {
     fn update(&mut self, raw: &Value);
 
     fn download_path(&self) -> PathBuf;
