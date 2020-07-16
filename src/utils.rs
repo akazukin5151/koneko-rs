@@ -51,18 +51,20 @@ pub fn find_number_map(x: i32, y: i32) -> Option<i32> {
     }
 }
 
-
 // IO related
 pub fn open_in_browser(image_id: &str) {
     let link = format!("https://www.pixiv.net/artworks/{}", image_id);
-    Command::new("xdg-open").arg(&link).spawn().unwrap_or_else(|_| panic!("xdg-open not installed!"));
+    Command::new("xdg-open")
+        .arg(&link)
+        .spawn()
+        .unwrap_or_else(|_| panic!("xdg-open not installed!"));
     println!("Opened {} in browser!", link);
 }
 
 pub fn open_link_coords(data: data::Gallery, first_num: i32, second_num: i32) {
     match find_number_map(first_num, second_num) {
         Some(n) => open_link_num(data, n),
-        None => println!("Invalid number!")
+        None => println!("Invalid number!"),
     }
 }
 

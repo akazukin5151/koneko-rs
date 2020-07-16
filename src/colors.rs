@@ -3,7 +3,6 @@ pub const MAGENTA: &str = "\x1b[35m";
 pub const BLUE: &str = "\x1b[34m";
 pub const RESET: &str = "\x1b[39m";
 
-
 #[allow(non_snake_case)]
 pub fn BLUE_N() -> String {
     format!("{}[{}n{}]{}", RED, BLUE, RED, RESET)

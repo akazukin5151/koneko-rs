@@ -1,11 +1,11 @@
 #![allow(dead_code)] // Temporary, remove later
 #[macro_use]
 mod utils;
-mod printer;
 mod colors;
 mod config;
 mod data;
 mod files;
+mod printer;
 mod pure;
 
 const KONEKODIR: &str = "~/.local/share/koneko/cache";

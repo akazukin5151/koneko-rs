@@ -103,7 +103,7 @@ pub fn print_multiple_imgs(illusts_json: &Value) {
             print!("{}{}{}{}{},", HASHTAG, i, HAS, number, OF_PAGES);
         }
         i += 1
-    };
+    }
     print!("\n");
 }
 
@@ -111,41 +111,65 @@ pub fn update_gallery_info(spacings: Vec<i32>, ncols: i32, current_selection: i3
     move_cursor_up(2);
     erase_line();
     print_cols(spacings, ncols);
-    println!("\n\nAdjusting the number of spaces between {} and {}", current_selection, current_selection + 1);
+    println!(
+        "\n\nAdjusting the number of spaces between {} and {}",
+        current_selection,
+        current_selection + 1
+    );
     move_cursor_up(1);
 }
 
 pub fn update_user_info(spacing: i32) {
-    erase_line();                   // Erase the first line
-    move_cursor_down(1);            // Go down and erase the second line
+    erase_line(); // Erase the first line
+    move_cursor_down(1); // Go down and erase the second line
     erase_line();
-    move_cursor_up(1);              // Go back up to the original position
-    print_info(spacing as usize);   // Print info takes up 2 lines
-    move_cursor_up(2);              // so go back to the top
+    move_cursor_up(1); // Go back up to the original position
+    print_info(spacing as usize); // Print info takes up 2 lines
+    move_cursor_up(2); // so go back to the top
 }
 
 pub fn image_help() {
     println!("");
-    println!("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-        b(), "ack; ",
-        n(), "ext image; ",
-        p(), "revious image; ",
-        d_(), "ownload image;",
-        o_(), "pen image in browser;\n",
-        "show image in", f(), "ull res; ",
-        q(), "uit (with confirmation); ",
-        "view ", m(), "anual\n"
+    println!(
+        "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+        b(),
+        "ack; ",
+        n(),
+        "ext image; ",
+        p(),
+        "revious image; ",
+        d_(),
+        "ownload image;",
+        o_(),
+        "pen image in browser;\n",
+        "show image in",
+        f(),
+        "ull res; ",
+        q(),
+        "uit (with confirmation); ",
+        "view ",
+        m(),
+        "anual\n"
     )
 }
 
 pub fn user_help() {
     println!("");
-    println!("{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-        "view ", BLUE_N(), "th artist's illusts ",
-        n(), "ext page; ",
-        p(), "revious page; ",
-        r(), "eload and re-download all;\n",
-        q(), "uit (with confirmation);",
-        "view ", m(), "anual\n"
+    println!(
+        "{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+        "view ",
+        BLUE_N(),
+        "th artist's illusts ",
+        n(),
+        "ext page; ",
+        p(),
+        "revious page; ",
+        r(),
+        "eload and re-download all;\n",
+        q(),
+        "uit (with confirmation);",
+        "view ",
+        m(),
+        "anual\n"
     )
 }

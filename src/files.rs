@@ -118,9 +118,8 @@ pub fn filter_dir(modes: Vec<i32>) -> Vec<String> {
         let predicate = |d: &str| pure::str_is_digit(d) || allowed_names.contains(d);
         res.filter(|x| predicate(x)).collect()
     } else if modes.iter().any(|&x| x == 2) {
-        let predicate = |d: &str| {
-            find_mode2_dirs().iter().any(|x| x == d) || allowed_names.contains(d)
-        };
+        let predicate =
+            |d: &str| find_mode2_dirs().iter().any(|x| x == d) || allowed_names.contains(d);
         res.filter(|x| predicate(x)).collect()
     } else {
         let predicate = |d: &str| allowed_names.contains(d);

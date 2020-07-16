@@ -106,8 +106,8 @@ pub fn image_text_offset() -> i32 {
 }
 
 pub fn gallery_print_spacing_config() -> Vec<i32> {
-    let setting =
-        get_setting("lscat", "gallery_print_spacing").unwrap_or_else(|| "9,17,17,17,17".to_string());
+    let setting = get_setting("lscat", "gallery_print_spacing")
+        .unwrap_or_else(|| "9,17,17,17,17".to_string());
     // TODO: if there is any parsing error, return the default
     setting
         .split(',')
@@ -125,7 +125,7 @@ pub fn credentials_from_config() -> Credentials {
     Credentials {
         username: get_setting("Credentials", "username").unwrap(),
         password: get_setting("Credentials", "password").unwrap(),
-        your_id: get_setting("Credentials", "ID").unwrap()
+        your_id: get_setting("Credentials", "ID").unwrap(),
     }
 }
 
@@ -185,7 +185,11 @@ fn write_config(creds: Credentials) -> Credentials {
     Command::new("clear").spawn();
     fs::create_dir_all(Path::new(CONFIGPATH).parent().unwrap());
     let mut buffer = File::create("config.ini").unwrap();
-    write!(buffer, "username={}\npassword={}",creds.username, creds.password);
+    write!(
+        buffer,
+        "username={}\npassword={}",
+        creds.username, creds.password
+    );
     if creds.your_id != "" {
         write!(buffer, "\nID={}", creds.your_id).unwrap()
     }
