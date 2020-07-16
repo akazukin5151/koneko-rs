@@ -90,8 +90,7 @@ pub fn change_url_to_full(url: &str, png: bool) -> String {
     let newurl2 = re2.replace(&newurl1, "img-original");
 
     if png {
-        let newurl3 = newurl2.replace("jpg", "png");
-        newurl3
+        newurl2.replace("jpg", "png")
     } else {
         newurl2.to_string()
     }

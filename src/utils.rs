@@ -34,7 +34,7 @@ pub fn term_height() -> u16 {
 
 pub fn open_in_browser(image_id: &str) {
     let link = format!("https://www.pixiv.net/artworks/{}", image_id);
-    Command::new("xdg-open").arg(&link).spawn();
+    Command::new("xdg-open").arg(&link).spawn().unwrap_or_else(|_| panic!("xdg-open not installed!"));
     println!("Opened {} in browser!", link);
 }
 

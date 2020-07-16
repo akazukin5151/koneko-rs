@@ -55,7 +55,7 @@ pub fn remove_dir_if_exist(data: impl Data) {
 pub fn filter_history(path: PathBuf) -> Vec<String> {
     fs::read_dir(path)
         .unwrap()
-        .map(|f| read_dir_to_string(f))
+        .map(read_dir_to_string)
         .filter(|f| f != "history")
         .collect()
 }
@@ -78,7 +78,7 @@ fn dir_up_to_date(data: impl Data, dir: &[String]) -> bool {
 pub fn dir_not_empty(data: impl Data) -> bool {
     let mut dir: Vec<String> = fs::read_dir(data.download_path())
         .unwrap()
-        .map(|r| read_dir_to_string(r))
+        .map(read_dir_to_string)
         .collect();
 
     if data.download_path().exists() && dir.iter().len() != 0 {
@@ -99,27 +99,27 @@ pub fn filter_dir(modes: Vec<i32>) -> Vec<String> {
     let dirs = fs::read_dir(path).unwrap();
     let mut allowed_names = HashSet::new();
 
-    if modes.iter().find(|&&x| x == 1).is_some() {
+    if modes.iter().any(|&x| x == 1) {
         allowed_names.insert("testgallery");
     }
-    if modes.iter().find(|&&x| x == 3).is_some() {
+    if modes.iter().any(|&x| x == 3) {
         allowed_names.insert("following");
         allowed_names.insert("testuser");
     }
-    if modes.iter().find(|&&x| x == 4).is_some() {
+    if modes.iter().any(|&x| x == 4) {
         allowed_names.insert("search");
     }
-    if modes.iter().find(|&&x| x == 5).is_some() {
+    if modes.iter().any(|&x| x == 5) {
         allowed_names.insert("illustfollow");
     }
 
-    let res = dirs.map(|x| read_dir_to_string(x));
-    if modes.iter().find(|&&x| x == 1).is_some() {
+    let res = dirs.map(read_dir_to_string);
+    if modes.iter().any(|&x| x == 1) {
         let predicate = |d: &str| pure::str_is_digit(d) || allowed_names.contains(d);
         res.filter(|x| predicate(x)).collect()
-    } else if modes.iter().find(|&&x| x == 2).is_some() {
+    } else if modes.iter().any(|&x| x == 2) {
         let predicate = |d: &str| {
-            find_mode2_dirs().iter().find(|&x| x == d).is_some() || allowed_names.contains(d)
+            find_mode2_dirs().iter().any(|x| x == d) || allowed_names.contains(d)
         };
         res.filter(|x| predicate(x)).collect()
     } else {

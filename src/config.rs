@@ -1,8 +1,8 @@
 use std::io;
-use std::fs::{self, File};
 use std::path::Path;
 use std::str::FromStr;
 use std::io::prelude::*;
+use std::fs::{self, File};
 use std::process::Command;
 
 use crate::pure;
@@ -107,7 +107,7 @@ pub fn image_text_offset() -> i32 {
 
 pub fn gallery_print_spacing_config() -> Vec<i32> {
     let setting =
-        get_setting("lscat", "gallery_print_spacing").unwrap_or("9,17,17,17,17".to_string());
+        get_setting("lscat", "gallery_print_spacing").unwrap_or_else(|| "9,17,17,17,17".to_string());
     // TODO: if there is any parsing error, return the default
     setting
         .split(',')
@@ -161,7 +161,7 @@ fn ask_credentials() -> (String, String) {
     let mut password = String::new();
     io::stdin().read_line(&mut password).unwrap();
 
-    (username.to_string(), password.to_string())
+    (username, password)
 }
 
 fn ask_your_id() -> String {
