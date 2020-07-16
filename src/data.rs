@@ -7,11 +7,10 @@ use serde_json::*;
 use crate::pure;
 use crate::KONEKODIR;
 
-
 pub enum DataStruct {
     Gallery,
     Image,
-    UserData
+    UserData,
 }
 
 pub struct Gallery {

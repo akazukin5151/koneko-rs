@@ -1,3 +1,4 @@
+use std::fs;
 use std::env;
 use std::path::Path;
 use std::process::Command;
@@ -5,21 +6,20 @@ use std::process::Command;
 use scopeguard::defer;
 
 use crate::data;
+use crate::KONEKODIR;
 
 #[macro_export]
 macro_rules! cd {
-    ( $newdir:expr, $x:block ) => {
+    ( $newdir:expr, $x:block ) => {{
+        let old = env::current_dir().unwrap();
         {
-            let old = env::current_dir().unwrap();
-            {
-                defer! {
-                    env::set_current_dir(old).unwrap();
-                };
-                env::set_current_dir($newdir).unwrap();
-                $x
-            }
+            defer! {
+                env::set_current_dir(old).unwrap();
+            };
+            env::set_current_dir($newdir).unwrap();
+            $x
         }
-    };
+    }};
 }
 
 pub fn open_in_browser(image_id: &str) {
@@ -30,6 +30,27 @@ pub fn open_in_browser(image_id: &str) {
 
 pub fn open_link_num(data: data::Gallery, number: i32) {
     open_in_browser(&data.image_id(number))
+}
+
+pub fn handle_missing_pics() {
+    let basedir = Path::new(KONEKODIR).parent().unwrap().join("pics");
+    if basedir.exists() {
+        return;
+    }
+    println!("Please wait, downloading welcome image (this will only occur once)...");
+    let baseurl = "https://raw.githubusercontent.com/twenty5151/koneko/master/pics/";
+    fs::create_dir_all(&basedir).unwrap();
+    for pic in ["71471144_p0.png", "79494300_p0.png"].iter() {
+        Command::new("curl")
+            .args(&[
+                "-s",
+                &format!("{}{}", baseurl, pic),
+                "-o",
+                &basedir.join(pic).to_str().unwrap(),
+            ])
+            .spawn();
+    }
+    Command::new("clear").spawn();
 }
 
 #[cfg(test)]

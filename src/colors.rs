@@ -23,7 +23,14 @@ fn letter_with_brackets(letter: char) -> String {
 }
 
 fn letter_with_coords(letter: char) -> String {
-    format!("{red}[{}{}{red}]{}{}", MAGENTA, letter, BLUE_N(), RESET, red = RED)
+    format!(
+        "{red}[{}{}{red}]{}{}",
+        MAGENTA,
+        letter,
+        BLUE_N(),
+        RESET,
+        red = RED
+    )
 }
 
 fn two_letter_with_coords(letter: char) -> String {
