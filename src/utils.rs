@@ -55,6 +55,7 @@ pub fn handle_missing_pics() {
 
 #[cfg(test)]
 mod tests {
+    use std::env;
     use super::*;
     use rstest::*;
 
