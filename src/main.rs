@@ -2,6 +2,7 @@
 mod utils;
 mod colors;
 mod data;
+mod files;
 mod pure;
 
 const KONEKODIR: &str = "~/.local/share/koneko/cache";
