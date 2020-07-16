@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::io::Read;
 use std::fs::{self, DirEntry, File};
 
@@ -49,4 +49,12 @@ pub fn remove_dir_if_exist(data: impl Data) {
     if data.download_path().exists() {
         fs::remove_dir_all(data.download_path()).unwrap()
     }
+}
+
+pub fn filter_history(path: PathBuf) -> Vec<String> {
+    fs::read_dir(path)
+        .unwrap()
+        .map(|f| f.unwrap().file_name().to_str().unwrap().to_string())
+        .filter(|f| f != "history")
+        .collect()
 }
