@@ -2,6 +2,8 @@ use std::fs;
 use std::path::Path;
 use std::process::Command;
 
+use crossterm::terminal;
+
 use crate::data;
 use crate::KONEKODIR;
 
@@ -20,6 +22,14 @@ macro_rules! cd {
             $x
         }
     }};
+}
+
+pub fn term_width() -> u16 {
+    terminal::size().unwrap().0
+}
+
+pub fn term_height() -> u16 {
+    terminal::size().unwrap().1
 }
 
 pub fn open_in_browser(image_id: &str) {

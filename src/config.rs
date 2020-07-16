@@ -2,9 +2,8 @@ use std::fs::File;
 use std::str::FromStr;
 use std::io::prelude::*;
 
-use crossterm::terminal;
-
 use crate::pure;
+use crate::utils;
 
 const CONFIGPATH: &str = "~/.config/koneko/config.ini";
 
@@ -60,15 +59,15 @@ fn width_padding(side: &str, dimension: &str, fallbacks: (i32, i32)) -> (i32, i3
 
 pub fn ncols_config() -> i32 {
     let (width, padding) = width_padding("width", "x", (18, 2));
-    pure::ncols(terminal::size().unwrap().0, width, padding)
+    pure::ncols(utils::term_width(), width, padding)
 }
 
 pub fn nrows_config() -> i32 {
     let (height, padding) = width_padding("height", "x", (8, 2));
-    pure::nrows(terminal::size().unwrap().1, height, padding)
+    pure::nrows(utils::term_height(), height, padding)
 }
 
 pub fn xcoords_config(offset: i32) -> Vec<i32> {
     let (width, padding) = width_padding("width", "x", (18, 2));
-    pure::xcoords(terminal::size().unwrap().0, width, padding, offset)
+    pure::xcoords(utils::term_width(), width, padding, offset)
 }
