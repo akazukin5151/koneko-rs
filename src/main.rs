@@ -1,6 +1,7 @@
 #![allow(dead_code)] // Temporary, remove later
 #[macro_use]
 mod utils;
+mod printer;
 mod colors;
 mod config;
 mod data;
@@ -10,6 +11,6 @@ mod pure;
 const KONEKODIR: &str = "~/.local/share/koneko/cache";
 
 fn main() {
-    println!("Hello, world!");
+    printer::write("Hello, world!");
     //utils::open_in_browser("76695217")
 }

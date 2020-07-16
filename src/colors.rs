@@ -1,7 +1,7 @@
-const RED: &str = "\x1b[31m";
-const MAGENTA: &str = "\x1b[35m";
-const BLUE: &str = "\x1b[34m";
-const RESET: &str = "\x1b[39m";
+pub const RED: &str = "\x1b[31m";
+pub const MAGENTA: &str = "\x1b[35m";
+pub const BLUE: &str = "\x1b[34m";
+pub const RESET: &str = "\x1b[39m";
 
 
 #[allow(non_snake_case)]
