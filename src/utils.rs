@@ -60,11 +60,9 @@ pub fn open_in_browser(image_id: &str) {
 }
 
 pub fn open_link_coords(data: data::Gallery, first_num: i32, second_num: i32) {
-    let selected_image_num = find_number_map(first_num, second_num);
-    if selected_image_num.is_none() {
-        println!("Invalid number!")
-    } else {
-        open_link_num(data, selected_image_num.unwrap())
+    match find_number_map(first_num, second_num) {
+        Some(n) => open_link_num(data, n),
+        None => println!("Invalid number!")
     }
 }
 
