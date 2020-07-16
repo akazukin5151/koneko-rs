@@ -7,6 +7,13 @@ use serde_json::*;
 use crate::pure;
 use crate::KONEKODIR;
 
+
+pub enum DataStruct {
+    Gallery,
+    Image,
+    UserData
+}
+
 pub struct Gallery {
     pub page_num: i32,
     pub main_path: PathBuf,
@@ -96,19 +103,19 @@ impl Data for Gallery {
 }
 
 impl Gallery {
-    fn current_illusts(&self) -> Option<&Value> {
+    pub fn current_illusts(&self) -> Option<&Value> {
         Some(&self.all_pages_cache.get(&self.page_num)?["illusts"])
     }
 
-    fn post_json(&self, post_number: i32) -> &Value {
+    pub fn post_json(&self, post_number: i32) -> &Value {
         &self.current_illusts().unwrap()[post_number as usize]
     }
 
-    fn image_id(&self, post_number: i32) -> String {
+    pub fn image_id(&self, post_number: i32) -> String {
         self.post_json(post_number)["id"].to_string()
     }
 
-    fn url(&self, number: i32) -> String {
+    pub fn url(&self, number: i32) -> String {
         pure::url_given_size(self.post_json(number), "large")
     }
 }
@@ -198,7 +205,7 @@ impl Mappable for Value {
 }
 
 impl User {
-    fn update(&self, raw: &Value) -> UserData {
+    pub fn update(&self, raw: &Value) -> UserData {
         let next_url = raw["next_url"].to_string().replace("\"", "");
         let page = &raw["user_previews"];
 
@@ -247,7 +254,7 @@ impl User {
 }
 
 impl UserData {
-    fn names(&self) -> &Vec<String> {
+    pub fn names(&self) -> &Vec<String> {
         self.names_cache.get(&self.page_num).unwrap()
     }
 }
@@ -273,23 +280,23 @@ pub fn new_imagedata<'a>(raw: &'a Value, image_id: &'a str) -> Image<'a> {
 }
 
 impl Image<'_> {
-    fn current_url(&self) -> &str {
+    pub fn current_url(&self) -> &str {
         &self.page_urls[self.page_num as usize]
     }
 
-    fn next_img_url(&self) -> &str {
+    pub fn next_img_url(&self) -> &str {
         &self.page_urls[self.page_num as usize + 1]
     }
 
-    fn image_filename(&self) -> &str {
+    pub fn image_filename(&self) -> &str {
         pure::split_backslash_last(self.current_url())
     }
 
-    fn filepath(&self) -> PathBuf {
+    pub fn filepath(&self) -> PathBuf {
         self.download_path.join(self.image_filename())
     }
 
-    fn large_filename(&self) -> &str {
+    pub fn large_filename(&self) -> &str {
         pure::split_backslash_last(&self.page_urls[0])
     }
 }
