@@ -5,6 +5,7 @@ use std::process::Command;
 use crossterm::terminal;
 
 use crate::data;
+use crate::config;
 use crate::KONEKODIR;
 
 #[macro_export]
@@ -22,6 +23,22 @@ macro_rules! cd {
             $x
         }
     }};
+}
+
+pub fn seq_coords_to_int(mut keyseqs: Vec<&str>) -> Option<i32> {
+    let second_num: i32 = keyseqs.pop().unwrap().parse().unwrap();
+    let first_num: i32 = keyseqs.pop().unwrap().parse().unwrap();
+    find_number_map(first_num, second_num)
+}
+
+pub fn find_number_map(x: i32, y: i32) -> Option<i32> {
+    let ncols = config::ncols_config();
+    let nrows = (30f32 / ncols as f32).ceil() as i32;
+    if 1 <= x && x <= ncols && 1 <= y && y <= nrows {
+        Some(((x - 1).rem_euclid(ncols)) + (ncols * (y - 1)))
+    } else {
+        None
+    }
 }
 
 pub fn term_width() -> u16 {
