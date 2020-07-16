@@ -4,6 +4,10 @@ use std::convert::TryInto;
 use regex::Regex;
 use serde_json::*;
 
+pub fn str_is_digit(s: &str) -> bool {
+    s.chars().all(|c| c.is_digit(10))
+}
+
 pub fn split_backslash_last(s: &str) -> &str {
     s.split('/').last().unwrap()
 }

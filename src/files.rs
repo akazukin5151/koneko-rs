@@ -1,17 +1,18 @@
 use std::path::{Path, PathBuf};
-use std::io::Read;
-use std::fs::{self, DirEntry, File};
+use std::collections::HashSet;
+use std::io::{self, Read};
+use std::fs::{self, DirEntry, File, ReadDir};
 
-use crate::data::{Data, UserData};
+use crate::pure;
 use crate::KONEKODIR;
+use crate::data::{Data, UserData};
+
+fn read_dir_to_string(d: io::Result<DirEntry>) -> String {
+    d.unwrap().file_name().to_str().unwrap().to_string()
+}
 
 fn isdigit(entry: DirEntry) -> (DirEntry, bool) {
-    let b = entry
-        .file_name()
-        .to_str()
-        .unwrap()
-        .chars()
-        .all(|s| s.is_digit(10));
+    let b = pure::str_is_digit(entry.file_name().to_str().unwrap());
     (entry, b)
 }
 
@@ -54,7 +55,7 @@ pub fn remove_dir_if_exist(data: impl Data) {
 pub fn filter_history(path: PathBuf) -> Vec<String> {
     fs::read_dir(path)
         .unwrap()
-        .map(|f| f.unwrap().file_name().to_str().unwrap().to_string())
+        .map(|f| read_dir_to_string(f))
         .filter(|f| f != "history")
         .collect()
 }
@@ -77,7 +78,7 @@ fn dir_up_to_date(data: impl Data, dir: &[String]) -> bool {
 pub fn dir_not_empty(data: impl Data) -> bool {
     let mut dir: Vec<String> = fs::read_dir(data.download_path())
         .unwrap()
-        .map(|r| r.unwrap().file_name().to_str().unwrap().to_string())
+        .map(|r| read_dir_to_string(r))
         .collect();
 
     if data.download_path().exists() && dir.iter().len() != 0 {
@@ -90,5 +91,45 @@ pub fn dir_not_empty(data: impl Data) -> bool {
         }
     } else {
         false
+    }
+}
+
+pub fn filter_dir(modes: Vec<i32>) -> Vec<String> {
+    let path = Path::new(KONEKODIR);
+    let dirs = fs::read_dir(path).unwrap();
+    let mut allowed_names = HashSet::new();
+
+    if modes.iter().find(|&&x| x == 1).is_some() {
+        allowed_names.insert("testgallery");
+    }
+    if modes.iter().find(|&&x| x == 3).is_some() {
+        allowed_names.insert("following");
+        allowed_names.insert("testuser");
+    }
+    if modes.iter().find(|&&x| x == 4).is_some() {
+        allowed_names.insert("search");
+    }
+    if modes.iter().find(|&&x| x == 5).is_some() {
+        allowed_names.insert("illustfollow");
+    }
+
+    let mut res = dirs.map(|x| read_dir_to_string(x));
+    if modes.iter().find(|&&x| x == 1).is_some() {
+        let predicate = |d: &str| {
+            pure::str_is_digit(d) || allowed_names.contains(d)
+        };
+        res.filter(|x| predicate(x)).collect()
+
+    } else if modes.iter().find(|&&x| x == 2).is_some() {
+        let predicate = |d: &str| {
+            find_mode2_dirs().iter().find(|&x| x == d).is_some() || allowed_names.contains(d)
+        };
+        res.filter(|x| predicate(x)).collect()
+
+    } else {
+        let predicate = |d: &str| {
+            allowed_names.contains(d)
+        };
+        res.filter(|x| predicate(x)).collect()
     }
 }
