@@ -25,6 +25,16 @@ macro_rules! cd {
     }};
 }
 
+// Terminal
+pub fn term_width() -> u16 {
+    terminal::size().unwrap().0
+}
+
+pub fn term_height() -> u16 {
+    terminal::size().unwrap().1
+}
+
+// Calculations
 pub fn seq_coords_to_int(mut keyseqs: Vec<&str>) -> Option<i32> {
     let second_num: i32 = keyseqs.pop().unwrap().parse().unwrap();
     let first_num: i32 = keyseqs.pop().unwrap().parse().unwrap();
@@ -41,18 +51,21 @@ pub fn find_number_map(x: i32, y: i32) -> Option<i32> {
     }
 }
 
-pub fn term_width() -> u16 {
-    terminal::size().unwrap().0
-}
 
-pub fn term_height() -> u16 {
-    terminal::size().unwrap().1
-}
-
+// IO related
 pub fn open_in_browser(image_id: &str) {
     let link = format!("https://www.pixiv.net/artworks/{}", image_id);
     Command::new("xdg-open").arg(&link).spawn().unwrap_or_else(|_| panic!("xdg-open not installed!"));
     println!("Opened {} in browser!", link);
+}
+
+pub fn open_link_coords(data: data::Gallery, first_num: i32, second_num: i32) {
+    let selected_image_num = find_number_map(first_num, second_num);
+    if selected_image_num.is_none() {
+        println!("Invalid number!")
+    } else {
+        open_link_num(data, selected_image_num.unwrap())
+    }
 }
 
 pub fn open_link_num(data: data::Gallery, number: i32) {
