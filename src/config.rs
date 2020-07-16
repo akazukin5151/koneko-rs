@@ -67,3 +67,8 @@ pub fn nrows_config() -> i32 {
     let (height, padding) = width_padding("height", "x", (8, 2));
     pure::nrows(terminal::size().unwrap().1, height, padding)
 }
+
+pub fn xcoords_config(offset: i32) -> Vec<i32> {
+    let (width, padding) = width_padding("width", "x", (18, 2));
+    pure::xcoords(terminal::size().unwrap().0, width, padding, offset)
+}
