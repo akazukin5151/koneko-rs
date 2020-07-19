@@ -258,27 +258,28 @@ impl UserData {
     }
 }
 
-pub fn new_imagedata<'a>(raw: &'a Value, image_id: &'a str) -> Image<'a> {
-    let artist_user_id = raw["user"]["id"].to_string();
-    let page_urls = pure::page_urls_in_post(raw, "large");
-    let number_of_pages: i32 = page_urls.iter().len().try_into().unwrap();
-    let mut download_path = Path::new(KONEKODIR)
-        .join(&artist_user_id)
-        .join("individual");
-    if number_of_pages != 1 {
-        download_path = download_path.join(image_id);
-    }
-    Image {
-        image_id,
-        artist_user_id,
-        page_num: 0,
-        page_urls,
-        number_of_pages,
-        download_path,
-    }
-}
 
 impl Image<'_> {
+    pub fn new<'a>(raw: &'a Value, image_id: &'a str) -> Image<'a> {
+        let artist_user_id = raw["user"]["id"].to_string();
+        let page_urls = pure::page_urls_in_post(raw, "large");
+        let number_of_pages: i32 = page_urls.iter().len().try_into().unwrap();
+        let mut download_path = Path::new(KONEKODIR)
+            .join(&artist_user_id)
+            .join("individual");
+        if number_of_pages != 1 {
+            download_path = download_path.join(image_id);
+        }
+        Image {
+            image_id,
+            artist_user_id,
+            page_num: 0,
+            page_urls,
+            number_of_pages,
+            download_path,
+        }
+    }
+
     pub fn current_url(&self) -> &str {
         &self.page_urls[self.page_num as usize]
     }
@@ -666,31 +667,31 @@ mod tests {
 
     #[rstest]
     fn test_image_artist_user_id(image_json: Value) {
-        let idata = new_imagedata(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217");
         assert_eq!(idata.artist_user_id, "2232374");
     }
 
     #[rstest]
     fn test_image_page_num(image_json: Value) {
-        let idata = new_imagedata(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217");
         assert_eq!(idata.page_num, 0);
     }
 
     #[rstest]
     fn test_image_number_of_pages(image_json: Value) {
-        let idata = new_imagedata(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217");
         assert_eq!(idata.number_of_pages, 8);
     }
 
     #[rstest]
     fn test_image_page_urls(image_json: Value) {
-        let idata = new_imagedata(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217");
         assert_eq!(idata.page_urls, ["https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p0_master1200.jpg", "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p1_master1200.jpg", "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p2_master1200.jpg", "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p3_master1200.jpg", "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p4_master1200.jpg", "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p5_master1200.jpg", "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p6_master1200.jpg", "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p7_master1200.jpg"]);
     }
 
     #[rstest]
     fn test_image_download_path(image_json: Value) {
-        let idata = new_imagedata(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217");
         assert_eq!(
             idata.download_path,
             Path::new(KONEKODIR).join("2232374/individual/76695217")
@@ -699,13 +700,13 @@ mod tests {
 
     #[rstest]
     fn test_image_image_filename(image_json: Value) {
-        let idata = new_imagedata(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217");
         assert_eq!(idata.image_filename(), "76695217_p0_master1200.jpg");
     }
 
     #[rstest]
     fn test_image_filepath(image_json: Value) {
-        let idata = new_imagedata(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217");
         assert_eq!(
             idata.filepath(),
             Path::new(KONEKODIR).join("2232374/individual/76695217/76695217_p0_master1200.jpg")
@@ -714,7 +715,7 @@ mod tests {
 
     #[rstest]
     fn test_image_next_img_url(image_json: Value) {
-        let idata = new_imagedata(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217");
         assert_eq!(
             idata.next_img_url(),
             "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p1_master1200.jpg"
@@ -723,7 +724,7 @@ mod tests {
 
     #[rstest]
     fn test_image_current_url(image_json: Value) {
-        let idata = new_imagedata(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217");
         assert_eq!(
             idata.current_url(),
             "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p0_master1200.jpg"
