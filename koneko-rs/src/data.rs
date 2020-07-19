@@ -48,6 +48,7 @@ pub struct Image<'a> {
     pub page_urls: Vec<String>,
     pub number_of_pages: i32,
     pub download_path: PathBuf,
+    pub firstmode: bool,
 }
 
 pub trait Data {
@@ -260,7 +261,7 @@ impl UserData {
 
 
 impl Image<'_> {
-    pub fn new<'a>(raw: &'a Value, image_id: &'a str) -> Image<'a> {
+    pub fn new<'a>(raw: &'a Value, image_id: &'a str, firstmode: bool) -> Image<'a> {
         let artist_user_id = raw["user"]["id"].to_string();
         let page_urls = pure::page_urls_in_post(raw, "large");
         let number_of_pages: i32 = page_urls.iter().len().try_into().unwrap();
@@ -277,6 +278,7 @@ impl Image<'_> {
             page_urls,
             number_of_pages,
             download_path,
+            firstmode
         }
     }
 
@@ -667,31 +669,31 @@ mod tests {
 
     #[rstest]
     fn test_image_artist_user_id(image_json: Value) {
-        let idata = Image::new(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217", false);
         assert_eq!(idata.artist_user_id, "2232374");
     }
 
     #[rstest]
     fn test_image_page_num(image_json: Value) {
-        let idata = Image::new(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217", false);
         assert_eq!(idata.page_num, 0);
     }
 
     #[rstest]
     fn test_image_number_of_pages(image_json: Value) {
-        let idata = Image::new(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217", false);
         assert_eq!(idata.number_of_pages, 8);
     }
 
     #[rstest]
     fn test_image_page_urls(image_json: Value) {
-        let idata = Image::new(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217", false);
         assert_eq!(idata.page_urls, ["https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p0_master1200.jpg", "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p1_master1200.jpg", "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p2_master1200.jpg", "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p3_master1200.jpg", "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p4_master1200.jpg", "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p5_master1200.jpg", "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p6_master1200.jpg", "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p7_master1200.jpg"]);
     }
 
     #[rstest]
     fn test_image_download_path(image_json: Value) {
-        let idata = Image::new(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217", false);
         assert_eq!(
             idata.download_path,
             Path::new(KONEKODIR).join("2232374/individual/76695217")
@@ -700,13 +702,13 @@ mod tests {
 
     #[rstest]
     fn test_image_image_filename(image_json: Value) {
-        let idata = Image::new(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217", false);
         assert_eq!(idata.image_filename(), "76695217_p0_master1200.jpg");
     }
 
     #[rstest]
     fn test_image_filepath(image_json: Value) {
-        let idata = Image::new(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217", false);
         assert_eq!(
             idata.filepath(),
             Path::new(KONEKODIR).join("2232374/individual/76695217/76695217_p0_master1200.jpg")
@@ -715,7 +717,7 @@ mod tests {
 
     #[rstest]
     fn test_image_next_img_url(image_json: Value) {
-        let idata = Image::new(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217", false);
         assert_eq!(
             idata.next_img_url(),
             "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p1_master1200.jpg"
@@ -724,7 +726,7 @@ mod tests {
 
     #[rstest]
     fn test_image_current_url(image_json: Value) {
-        let idata = Image::new(&image_json, "76695217");
+        let idata = Image::new(&image_json, "76695217", false);
         assert_eq!(
             idata.current_url(),
             "https://i.pximg.net/c/600x1200_90_webp/img-master/img/2019/09/09/04/32/38/76695217_p0_master1200.jpg"
