@@ -8,6 +8,7 @@ mod files;
 mod printer;
 mod pure;
 mod screens;
+mod ui;
 
 const KONEKODIR: &str = "~/.local/share/koneko/cache";
 const __version__: &str = "0.0.1";
